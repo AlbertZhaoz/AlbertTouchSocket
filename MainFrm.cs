@@ -1,4 +1,6 @@
 using System.Text;
+using System.Windows.Forms;
+using Furion.Logging.Extensions;
 using Sunny.UI;
 using TouchSocket.Core;
 using TouchSocket.Sockets;
@@ -87,7 +89,8 @@ namespace AlbertTouchSocket
                 {
                     //从客户端收到信息
                     string mes = Encoding.UTF8.GetString(byteBlock.Buffer, 0, byteBlock.Len);//注意：数据长度是byteBlock.Len
-                    client.Logger.Info($"已从{client.Id}接收到信息：{mes}");
+                    PrintServeLog($"已从{client.Id}接收到信息：{mes}");
+
 
                     client.Send(mes);//将收到的信息直接返回给发送方
                     // client.Send("id",mes);//将收到的信息返回给特定ID的客户端
@@ -103,7 +106,7 @@ namespace AlbertTouchSocket
                 };
 
                 _service.Setup(new TouchSocketConfig()//载入配置
-                        .SetListenIPHosts("tcp://127.0.0.1:7000", 7001)//同时监听两个地址
+                        .SetListenIPHosts("tcp://127.0.0.1:7222", 7223)//同时监听两个地址
                         .ConfigureContainer(a =>//容器的配置顺序应该在最前面
                         {
                             a.AddConsoleLogger();//添加一个控制台日志注入（注意：在maui中控制台日志不可用）
@@ -149,10 +152,12 @@ namespace AlbertTouchSocket
             if (result.IsSuccess())
             {
                 _tcpClient.Logger.Info("客户端成功连接");
+                "客户端成功连接".LogInformation();
             }
             else
             {
                 _tcpClient.Logger.Info("客户端成功失败");
+                "客户端成功失败".LogError();
             }
         }
 
@@ -197,6 +202,94 @@ namespace AlbertTouchSocket
         private void uiButtonClientConnect_Click(object sender, EventArgs e)
         {
             CreateClient();
+        }
+
+        private void uiListBoxClientLog_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            uiListBoxClientLog.SelectedIndex = 0;
+        }
+
+        private void uiButton_Plc_Click(object sender, EventArgs e)
+        {
+            _tcpClient.Connecting = (client, e) => { };//即将连接到服务器，此时已经创建socket，但是还未建立tcp
+            _tcpClient.Connected = (client, e) => { };//成功连接到服务器
+            _tcpClient.Disconnecting = (client, e) => { };//即将从服务器断开连接。此处仅主动断开才有效。
+            _tcpClient.Disconnected = (client, e) => { };//从服务器断开连接，当连接不成功时不会触发。
+            _tcpClient.Received = (client, byteBlock, requestInfo) =>
+            {
+                //从服务器收到信息。但是一般byteBlock和requestInfo会根据适配器呈现不同的值。
+                string mes = Encoding.UTF8.GetString(byteBlock.Buffer, 0, byteBlock.Len);
+                _tcpClient.Logger.Info($"客户端接收到信息：{mes}");
+            };
+
+            //载入配置
+            _tcpClient.Setup(new TouchSocketConfig()
+                .SetRemoteIPHost("192.168.1.119:9100")
+                .ConfigureContainer(a =>
+                {
+                    // 两种日志方式
+                    a.SetSingletonLogger(new LoggerGroup(new FileLogger(), new EasyLogger(PrintClinetLog)));
+                }));
+
+            Result result = _tcpClient.TryConnect();//或者可以调用TryConnect
+            if (result.IsSuccess())
+            {
+                _tcpClient.Logger.Info("客户端成功连接");
+            }
+            else
+            {
+                _tcpClient.Logger.Info("客户端成功失败");
+            }
+        }
+
+        private void uiButton1_Click(object sender, EventArgs e)
+        {
+
+            _tcpClient.Send("~JA");
+
+            var test = @"^XA
+~TA000
+~JSN
+^LT0
+^MNW
+^MTT
+^PON
+^PMN
+^LH30,30
+^JMA
+^PR4,4
+~SD28
+^JUS
+^LRN
+^CI27
+^PA0,1,1,0
+^XZ
+^XA
+^MMT
+^PW508
+^LL236
+^LS0
+^FT373,212^BQN,2,5
+^FH\^FDLA,20230926044438^FS
+^FO180,81^GFA,537,840,20,:Z64:eJzFkbGK20AQhn9pDRt04HVzh4tgGZVp4tLV2YUfRI+g7q4IeDs3gbzB4dL4CQwpso8yxs1xxaFUcSE0md31msSkz6IRq0///Du/RABxv8MP3uLzmwWzRYPsyNxlzGes2SlmQouMmFn2vVRr/Luo86zzTEvhHHUb0YmmSzoC9MZioh2+TIDn4AcoYUMDPAqbJ522MCUwCUyAXLnXDRFqjn+tqqqmeVXlokWsKZ5+PZHURjwfYs0kH/v5vskZ4m/CGfLsc2xu2OmWyXwnkvnE68ok78lB/eXXBqYvveWV2ZDXDFO2Jvb6+XRif/gZiz71pvnkG3dXvwuTb39Ofl7n55N/1ya/lFcyUWBLYDlYrQbAAPcruf3XVWynH4ptscv3sNN8F1hJzbhsTac5s7U5B7am+WzRml71ytEisgYf65Gk0cgcjaLf2g5pQXD6XR2pfA1s4bQrW2F99pPK2Fu0yt4d4NRefa/zQ2xuFDAOfmUjG78+kbKF6PRevdTF4TKLQvDj7Gsd/H4DJ/jiJA==:1E6E
+^FO24,97^A0N,17,18^FB111,1,4,L^FH\^CI28^FDLineID^FS^CI27
+^FO24,131^A0N,17,18^FB111,1,4,L^FH\^CI28^FDSerialNumber^FS^CI27
+^SLS,1
+^FT24,177^A0N,17,18
+^FC%,{,#
+^FH\^CI28^FD%d/%m/%Y^FS^CI27
+^FO24,198^A0N,17,18^FB111,1,4,L^FH\^CI28^FDCountryOfOrigin^FS^CI27
+^SLS,1
+^FT146,177^A0N,17,18
+^FC%,{,#
+^FH\^CI28^FD%H:%M^FS^CI27
+^FO24,28^A0N,17,18^FB154,1,4,L^FH\^CI28^FDMbItemNumber^FS^CI27
+^FO185,28^A0N,17,18^FB154,1,4,L^FH\^CI28^FDZgs^FS^CI27
+^PQ1,,,Y
+^XZ
+";
+
+            _tcpClient.Send(test);
         }
     }
 }

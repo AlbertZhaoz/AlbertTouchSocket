@@ -44,13 +44,16 @@
             uiPanel3 = new Sunny.UI.UIPanel();
             uiButtonEndServe = new Sunny.UI.UIButton();
             uiButtonStartServe = new Sunny.UI.UIButton();
+            uiButton_Plc = new Sunny.UI.UIButton();
             uiButtonSend = new Sunny.UI.UIButton();
             uiButtonClientDisConnect = new Sunny.UI.UIButton();
             uiButtonClientConnect = new Sunny.UI.UIButton();
             uiRichTextBoxClient = new Sunny.UI.UIRichTextBox();
             uiTextBoxPort = new Sunny.UI.UITextBox();
             uiipTextBoxIp = new Sunny.UI.UIIPTextBox();
+            uiPanel1 = new Sunny.UI.UIPanel();
             uiListBoxClientLog = new Sunny.UI.UIListBox();
+            uiButton1 = new Sunny.UI.UIButton();
             uiContextMenuStrip.SuspendLayout();
             uiSplitContainer.BeginInit();
             uiSplitContainer.Panel1.SuspendLayout();
@@ -62,6 +65,7 @@
             uiSplitContainer1.Panel2.SuspendLayout();
             uiSplitContainer1.SuspendLayout();
             uiPanel3.SuspendLayout();
+            uiPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // uiContextMenuStrip
@@ -126,7 +130,7 @@
             // 
             // uiSplitContainer.Panel2
             // 
-            uiSplitContainer.Panel2.Controls.Add(uiListBoxClientLog);
+            uiSplitContainer.Panel2.Controls.Add(uiPanel1);
             uiSplitContainer.Size = new Size(1333, 697);
             uiSplitContainer.SplitterDistance = 545;
             uiSplitContainer.SplitterWidth = 11;
@@ -161,6 +165,8 @@
             // 
             // uiSplitContainer1.Panel2
             // 
+            uiSplitContainer1.Panel2.Controls.Add(uiButton1);
+            uiSplitContainer1.Panel2.Controls.Add(uiButton_Plc);
             uiSplitContainer1.Panel2.Controls.Add(uiButtonSend);
             uiSplitContainer1.Panel2.Controls.Add(uiButtonClientDisConnect);
             uiSplitContainer1.Panel2.Controls.Add(uiButtonClientConnect);
@@ -228,6 +234,19 @@
             uiButtonStartServe.TabIndex = 1;
             uiButtonStartServe.Text = "开启服务";
             uiButtonStartServe.Click += uiButtonStartServe_Click;
+            // 
+            // uiButton_Plc
+            // 
+            uiButton_Plc.Font = new Font("微软雅黑", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            uiButton_Plc.Location = new Point(408, 206);
+            uiButton_Plc.MinimumSize = new Size(1, 1);
+            uiButton_Plc.Name = "uiButton_Plc";
+            uiButton_Plc.Radius = 44;
+            uiButton_Plc.Size = new Size(105, 44);
+            uiButton_Plc.TabIndex = 6;
+            uiButton_Plc.Text = "打标机测试";
+            uiButton_Plc.TipsFont = new Font("微软雅黑", 9F, FontStyle.Regular, GraphicsUnit.Point);
+            uiButton_Plc.Click += uiButton_Plc_Click;
             // 
             // uiButtonSend
             // 
@@ -318,12 +337,25 @@
             uiipTextBoxIp.Text = "127.0.0.1";
             uiipTextBoxIp.TextAlignment = ContentAlignment.MiddleCenter;
             // 
+            // uiPanel1
+            // 
+            uiPanel1.Controls.Add(uiListBoxClientLog);
+            uiPanel1.Dock = DockStyle.Fill;
+            uiPanel1.Font = new Font("微软雅黑", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            uiPanel1.Location = new Point(0, 0);
+            uiPanel1.Margin = new Padding(4, 5, 4, 5);
+            uiPanel1.MinimumSize = new Size(1, 1);
+            uiPanel1.Name = "uiPanel1";
+            uiPanel1.Size = new Size(777, 697);
+            uiPanel1.TabIndex = 1;
+            uiPanel1.Text = "uiPanel1";
+            uiPanel1.TextAlignment = ContentAlignment.MiddleCenter;
+            // 
             // uiListBoxClientLog
             // 
             uiListBoxClientLog.Dock = DockStyle.Fill;
+            uiListBoxClientLog.FillColor = Color.White;
             uiListBoxClientLog.Font = new Font("微软雅黑", 12F, FontStyle.Regular, GraphicsUnit.Point);
-            uiListBoxClientLog.HoverColor = Color.FromArgb(155, 200, 255);
-            uiListBoxClientLog.ItemSelectForeColor = Color.White;
             uiListBoxClientLog.Location = new Point(0, 0);
             uiListBoxClientLog.Margin = new Padding(4, 5, 4, 5);
             uiListBoxClientLog.MinimumSize = new Size(1, 1);
@@ -331,9 +363,21 @@
             uiListBoxClientLog.Padding = new Padding(2);
             uiListBoxClientLog.ShowText = false;
             uiListBoxClientLog.Size = new Size(777, 697);
-            uiListBoxClientLog.Style = Sunny.UI.UIStyle.Custom;
             uiListBoxClientLog.TabIndex = 0;
-            uiListBoxClientLog.Text = "uiListBox1";
+            uiListBoxClientLog.Text = null;
+            uiListBoxClientLog.SelectedIndexChanged += uiListBoxClientLog_SelectedIndexChanged;
+            // 
+            // uiButton1
+            // 
+            uiButton1.Font = new Font("微软雅黑", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            uiButton1.Location = new Point(408, 256);
+            uiButton1.MinimumSize = new Size(1, 1);
+            uiButton1.Name = "uiButton1";
+            uiButton1.Radius = 44;
+            uiButton1.Size = new Size(105, 44);
+            uiButton1.TabIndex = 7;
+            uiButton1.Text = "打标机测试";
+            uiButton1.Click += uiButton1_Click;
             // 
             // MainFrm
             // 
@@ -357,6 +401,7 @@
             uiSplitContainer1.EndInit();
             uiSplitContainer1.ResumeLayout(false);
             uiPanel3.ResumeLayout(false);
+            uiPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -384,5 +429,8 @@
         private Sunny.UI.UIButton uiButtonClientConnect;
         private Sunny.UI.UIButton uiButtonSend;
         private Sunny.UI.UIListBox uiListBoxClientLog;
+        private Sunny.UI.UIPanel uiPanel1;
+        private Sunny.UI.UIButton uiButton_Plc;
+        private Sunny.UI.UIButton uiButton1;
     }
 }
